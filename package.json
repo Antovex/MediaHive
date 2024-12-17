@@ -1,0 +1,16 @@
+{
+  "name": "mediahive",
+  "version": "1.0.0",
+  "description": "Personal project",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Development",
+    "js"
+  ],
+  "author": "Antarin Ghosal",
+  "license": "ISC"
+}
