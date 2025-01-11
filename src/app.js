@@ -23,4 +23,13 @@ app.use(express.static("public"));
 // parse cookies sent by clients and can do CRUD operations on it
 app.use(cookieParser());
 
+
+// Routes import
+import UserRouter from "./routes/user.routes.js";
+
+// Routes declaration
+// We have to use middleware to use routes as Router defination is segregated form this file
+app.use("/api/v1/users", UserRouter);
+
+
 export {app};
