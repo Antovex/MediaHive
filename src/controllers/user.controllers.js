@@ -20,18 +20,18 @@ const registerUser = asyncHandler(async (req, res) => {
     // return response
 
     const {fullName, email, username, password } = req.body
-    console.log("email: ", email);
+    // console.log("email: ", email);
 
     if (
         // If any field is empty then throw error
-        [fullName, email, username, password].some((field) => field?.trim() === "")
+        [fullName, email, username, password].some((field) => field?.trim() === undefined)
     ) {
         // We wrote ApiError class so that we don't have to write error message again and again
         throw new ApiError(400, "All fields are required")
     }
 
     // Checking if email or username already exists in the database
-    const exsistedUser = User.findOne({
+    const exsistedUser = await User.findOne({
         $or: [{ username },{ email }]
     })
     // User is the variable that we used to make userSchema using mongoose so we can directly check with database using the same variable
@@ -43,18 +43,24 @@ const registerUser = asyncHandler(async (req, res) => {
     // This files comes form multer
     // Check for avatar and coverImage in the local machine
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    let coverImageLocalPath;
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+        coverImageLocalPath = req.files.coverImage[0].path
+    }
 
     if(!avatarLocalPath) {
-        throw new ApiError(400, "Avatar is required")
+        throw new ApiError(400, "Avatar is required for local upload")
     }
+
+    // console.log(avatarLocalPath);
 
     // Upload avatar and coverImage to cloudinary
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
     if(!avatar){
-        throw new ApiError(400, "Avatar is required")
+        throw new ApiError(400, "Avatar is required for cloudinary")
     }
 
     // Create user
@@ -68,7 +74,7 @@ const registerUser = asyncHandler(async (req, res) => {
     })
 
     // Remove password and refreshToken
-    const createdUser = await User.findByID(user._id).select(
+    const createdUser = await User.findById(user._id).select(
         "-password -refreshToken"
     )
 
